@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from rest_framwork.views import APIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framwork import status
+from rest_framework import status
+from cryptography.fernet import Fernet # symmetric encryption
+
 import json
 
 
@@ -158,7 +160,6 @@ class IoT_BlockChain_block(APIView):
             if dict_block["channel_id"] == get_channel:
                 return Response(json.dumps(vars(find_block), indent=4), status = 200)
                 
-
         return Response("There is no block in this channel", status = 200)
 
 
