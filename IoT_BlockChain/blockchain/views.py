@@ -87,9 +87,8 @@ class Block():
 
 # 블록체인에서의 블록 생성
 class BlockChain:
-    def __init__(self, ):
+    def __init__(self):
         self.chain = []
-        self.difficulty = 5
         self.createGenesis()
 
 
@@ -122,10 +121,11 @@ class BlockChain:
 
 
 
-block = BlockChain()
+
 
 
 class IoT_BlockChain_block(APIView):
+    block = BlockChain()
 
     def post(self, request):
         global block
@@ -145,22 +145,23 @@ class IoT_BlockChain_block(APIView):
         for recent_block in block.chain:
             continue
 
-        return Response(json.dumps(vars(recent_block), indent=4), status=200)
+        return Response(json.dumps(vars(recent_block)), status=200)
 
 
-    def get(self, request, channel):
+    def get(self, request):
         # para로 받을 것    
 
         get_channel = request.GET.get('channel_id')
-        
+        send_block=[]
 
         for find_block in block.chain:
             json_find_block = json.dumps(vars(find_block))
             dict_block = json.loads(json_find_block)
+            
             if dict_block["channel_id"] == get_channel:
-                return Response(json.dumps(vars(find_block), indent=4), status = 200)
-                
-        return Response("There is no block in this channel", status = 200)
+                send_block.append(json.dumps(vars(find_block)))
+        
+        if len(send_block):
+            return Response("There is no block in this channel", status = 200)
 
-
-
+        return Response(json.dumps(send_block), status = 200)
