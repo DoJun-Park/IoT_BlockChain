@@ -66,13 +66,13 @@ class SimpleEnDecrypt:
 # 블록 class
 class Block():
 
-    def __init__(self, index,timestamp, channel_id, sensor_val, service_val):
+    def __init__(self, index,timestamp, channel_name, sensor_val, service_val):
         self.index = index
         self.satisfaction = ""
         self.previous_block_id = ""
         self.current_block_id = self.calHash(timestamp, index)
         self.timestamp = timestamp
-        self.channel_id = channel_id
+        self.channel_name = channel_name
         self.sensor_val = sensor_val
         self.service_val = service_val
         self.runtime = ""
@@ -121,11 +121,11 @@ class BlockChain:
 
 
 
+block = BlockChain()
 
 
 
 class IoT_BlockChain_block(APIView):
-    block = BlockChain()
 
     def post(self, request):
         global block
@@ -134,12 +134,12 @@ class IoT_BlockChain_block(APIView):
         body = json.loads(body_unicode)
         
         req_timestamp = body['time']
-        req_channel_id = body['channel_id']
+        req_channel_name = body['channel_name']
         req_sensor_val = body['sensor_val']
         req_service_val = body['service_val']
 
 
-        block.addBlock(Block(len(block.chain),req_timestamp,req_channel_id,req_sensor_val,req_service_val))
+        block.addBlock(Block(len(block.chain),req_timestamp,req_channel_name,req_sensor_val,req_service_val))
 
         # 마지막 블록
         for recent_block in block.chain:
@@ -151,17 +151,17 @@ class IoT_BlockChain_block(APIView):
     def get(self, request):
         # para로 받을 것    
 
-        get_channel = request.GET.get('channel_id')
+        get_channel = request.GET.get('channel_name')
         send_block=[]
 
         for find_block in block.chain:
             json_find_block = json.dumps(vars(find_block))
             dict_block = json.loads(json_find_block)
             
-            if dict_block["channel_id"] == get_channel:
+            if dict_block["channel_name"] == get_channel:
                 send_block.append(json.dumps(vars(find_block)))
         
-        if len(send_block):
+        if len(send_block)==0:
             return Response("There is no block in this channel", status = 200)
 
         return Response(json.dumps(send_block), status = 200)
