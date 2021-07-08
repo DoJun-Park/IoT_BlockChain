@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+import IoT_BlockChain
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('block/', IoT_BlockChain.views.IoT_BlockChain_block.as_view())
+    # path('block/<str:channel>', IoT_BlockChain.views.IoT_BlockChain_block.as_view())
 ]
