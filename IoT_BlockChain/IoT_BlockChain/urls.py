@@ -19,6 +19,6 @@ import blockchain.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('block/', blockchain.views.IoT_BlockChain_block.as_view())
+    path('block', blockchain.views.IoT_BlockChain_block.as_view())
     # path('block/<str:channel>', IoT_BlockChain.views.IoT_BlockChain_block.as_view())
 ]
