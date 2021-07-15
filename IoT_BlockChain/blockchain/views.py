@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from cryptography.fernet import Fernet # symmetric encryption
+from django.http import JsonResponse
 
 import json
 
@@ -23,7 +24,7 @@ block={
 		"timestamp": ""
 	},
 	"data": {
-		"channel_id": "",
+		"channel_name": "",
 		"sensor_val": "",
 		"service_val": "",
 		"runtime": ""
@@ -65,7 +66,6 @@ class SimpleEnDecrypt:
 
 # 블록 class
 class Block():
-
     def __init__(self, index,timestamp, channel_name, sensor_val, service_val):
         self.index = index
         self.satisfaction = ""
@@ -78,11 +78,11 @@ class Block():
         self.runtime = ""
 
 
-
     def calHash(self,timestamp, index):
         simpleEnDecrypt = SimpleEnDecrypt()
         message  = timestamp + str(index)
         return simpleEnDecrypt.encrypt(message)
+
 
 
 # 블록체인에서의 블록 생성
@@ -120,9 +120,7 @@ class BlockChain:
 
 
 
-
 block = BlockChain()
-
 
 
 class IoT_BlockChain_block(APIView):
@@ -141,27 +139,35 @@ class IoT_BlockChain_block(APIView):
 
         block.addBlock(Block(len(block.chain),req_timestamp,req_channel_name,req_sensor_val,req_service_val))
 
+
         # 마지막 블록
         for recent_block in block.chain:
             continue
+        
 
-        return Response(json.dumps(vars(recent_block)), status=200)
+        blockJSONData = json.dumps(vars(recent_block))
+        blockJSON = json.loads(blockJSONData)
+        print(type(blockJSON))
+        return JsonResponse(blockJSON, safe=False, status = 200)
 
 
     def get(self, request):
         # para로 받을 것    
 
         get_channel = request.GET.get('channel_name')
-        send_block=[]
+        send_block={}
 
         for find_block in block.chain:
             json_find_block = json.dumps(vars(find_block))
             dict_block = json.loads(json_find_block)
-            
             if dict_block["channel_name"] == get_channel:
-                send_block.append(json.dumps(vars(find_block)))
+                send_block[dict_block["index"]]=dict_block
+                # send_block.append(json.dumps(vars(find_block)))
         
         if len(send_block)==0:
             return Response("There is no block in this channel", status = 200)
 
-        return Response(json.dumps(send_block), status = 200)
+
+  
+
+        return JsonResponse(send_block, safe=False, status = 200)
